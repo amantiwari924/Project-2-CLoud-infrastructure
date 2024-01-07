@@ -1,0 +1,190 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'Template to create EC2 instance, VPC, S3 bucket, and security groups'
+Resources:
+  MyVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      Tags:
+        - Key: Name
+          Value: MyVPC
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: e5df30d9-8f0b-4d7d-b531-efe7bd38aff7
+  MySubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.0.0/24
+      Tags:
+        - Key: Name
+          Value: MySubnet
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 12ba186d-02dd-4157-8ae6-5b84e66c9728
+  MyInternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 2505726e-c211-4670-aa19-1e68b6354ac4
+  MyGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref MyInternetGateway
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: d545655c-111b-4031-b214-99277c3037d8
+  MyRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref MyVPC
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: a28da8b5-fe53-46f6-b71e-0f767bfa67ab
+  MyRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: MyGatewayAttachment
+    Properties:
+      RouteTableId: !Ref MyRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref MyInternetGateway
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 29ec2803-22fc-471c-9f10-0ca58544d59a
+  MySecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Allow SSH and HTTP traffic
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: d7ad58e6-a926-488e-b611-94326db1c9df
+  MyS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: my-unique-s3-bucket
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: bddc5138-2ba7-43c5-a544-3a6cee07ea1a
+    DependsOn:
+      - MyVPC
+  MyEC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-03f4878755434977f (64-bit (x86))
+      SubnetId: !Ref MySubnet
+      SecurityGroupIds:
+        - !Ref MySecurityGroup
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 9c3c5912-ff16-4ea1-bd6d-954d8df54ca6
+Metadata:
+  'AWS::CloudFormation::Designer':
+    bddc5138-2ba7-43c5-a544-3a6cee07ea1a:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 280
+        'y': 390
+      z: 1
+      embeds: []
+      dependson:
+        - e5df30d9-8f0b-4d7d-b531-efe7bd38aff7
+    2505726e-c211-4670-aa19-1e68b6354ac4:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 390
+        'y': 390
+      z: 1
+      embeds: []
+    e5df30d9-8f0b-4d7d-b531-efe7bd38aff7:
+      size:
+        width: 240
+        height: 240
+      position:
+        x: 360
+        'y': 90
+      z: 1
+      embeds:
+        - d7ad58e6-a926-488e-b611-94326db1c9df
+    d7ad58e6-a926-488e-b611-94326db1c9df:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 390
+        'y': 150
+      z: 2
+      parent: e5df30d9-8f0b-4d7d-b531-efe7bd38aff7
+      embeds: []
+      iscontainedinside:
+        - e5df30d9-8f0b-4d7d-b531-efe7bd38aff7
+    a28da8b5-fe53-46f6-b71e-0f767bfa67ab:
+      size:
+        width: 150
+        height: 150
+      position:
+        x: 60
+        'y': 390
+      z: 1
+      embeds: []
+    d545655c-111b-4031-b214-99277c3037d8:
+      source:
+        id: 2505726e-c211-4670-aa19-1e68b6354ac4
+      target:
+        id: e5df30d9-8f0b-4d7d-b531-efe7bd38aff7
+    29ec2803-22fc-471c-9f10-0ca58544d59a:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 510
+        'y': 390
+      z: 1
+      embeds: []
+      dependson:
+        - d545655c-111b-4031-b214-99277c3037d8
+    12ba186d-02dd-4157-8ae6-5b84e66c9728:
+      size:
+        width: 240
+        height: 240
+      position:
+        x: 60
+        'y': 90
+      z: 1
+      embeds:
+        - 9c3c5912-ff16-4ea1-bd6d-954d8df54ca6
+    9c3c5912-ff16-4ea1-bd6d-954d8df54ca6:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 90
+        'y': 150
+      z: 2
+      parent: 12ba186d-02dd-4157-8ae6-5b84e66c9728
+      embeds: []
+      isassociatedwith:
+        - d7ad58e6-a926-488e-b611-94326db1c9df
+      iscontainedinside:
+        - 12ba186d-02dd-4157-8ae6-5b84e66c9728
+    4c6324ef-eb24-46c4-a9a9-51a7d9748783:
+      source:
+        id: bddc5138-2ba7-43c5-a544-3a6cee07ea1a
+      target:
+        id: e5df30d9-8f0b-4d7d-b531-efe7bd38aff7
+      z: 11
